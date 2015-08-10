@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MinecraftDummy:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MinecraftDummy_jar</output-path>
+    <root id="archive" name="MinecraftDummy.jar">
+      <element id="module-output" name="MinecraftDummy" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+    </root>
+  </artifact>
+</component>

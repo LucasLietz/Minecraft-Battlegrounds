@@ -1,0 +1,7 @@
+name: Battlegrounds
+version: 1.0
+author: f3rd
+main: com.github.fate0608.Battlegrounds.Battlegrounds
+commands:
+  bg:
+    description: tests plugin
