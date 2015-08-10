@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="JMC">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/JMC.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

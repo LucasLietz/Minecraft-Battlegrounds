@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="StopIt:jar">
-    <output-path>$USER_HOME$/Desktop/Stuff/srv/plugins</output-path>
-    <root id="archive" name="StopIt.jar">
-      <element id="module-output" name="StopIt" />
-      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
-    </root>
-  </artifact>
-</component>
