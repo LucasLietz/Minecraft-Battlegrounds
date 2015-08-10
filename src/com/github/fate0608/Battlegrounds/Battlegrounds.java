@@ -15,6 +15,8 @@ public class Battlegrounds extends JavaPlugin {
 	@Override
 	public void onEnable(){
 		
+		isStarted = getConfig().getBoolean("Battlegrounds.commands.STATUS");
+		
 		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerJoin(this,getServer(), isStarted),this);
 		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerDeath(this,getServer(), isStarted),this);
 		

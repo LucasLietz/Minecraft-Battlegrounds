@@ -21,7 +21,7 @@ public class OnPlayerJoin implements Listener{
     private Server s;
     private JoinedPlayer _jp;
 	private int invincibleTime = 20;
-	private boolean bgStarted;
+	private boolean bgStarted=false;
 
     public OnPlayerJoin(Battlegrounds instance, Server server, boolean isStarted) {
         plugin = instance;
@@ -31,7 +31,6 @@ public class OnPlayerJoin implements Listener{
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerJoinEvent event) {
-    	
     	if(bgStarted)
     	{
 	    	JoinedPlayer jp = new JoinedPlayer();
