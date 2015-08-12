@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -21,7 +22,8 @@ public class Battlegrounds extends JavaPlugin {
 	
 	private Server srv = this.getServer();
 	private boolean isStarted;
-	private int SecGlob;
+	private int SecGlob = 30;
+	private int taskId;
 
 	@Override
 	public void onEnable(){
@@ -71,6 +73,7 @@ public class Battlegrounds extends JavaPlugin {
                         {
                             if(args[0].equalsIgnoreCase("status"))
                             {
+                            	isStarted = this.getConfig().getBoolean("Battlegrounds.commands.STATUS");
 				            					                    
 			                    if(isStarted)
 			                    {
@@ -88,7 +91,7 @@ public class Battlegrounds extends JavaPlugin {
                             	{
                             		getConfig().set("Battlegrounds.commands.STATUS", true);
                             		saveConfig();
-                            		StartGame();
+                            		StartGame(30);
                             	}
                             }
                            
@@ -133,44 +136,38 @@ public class Battlegrounds extends JavaPlugin {
     	return false;
     }
 
-	private void StartGame() 
+	private void StartGame(int countdown) 
 	{
-		SecGlob = 30;
-		srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
+		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
-			
 			public void run()
 			{
-				final int sec = SecGlob;
-				int countdown = sec;
-				if(countdown > 0)
+				if(SecGlob>0)
 				{
 					for(Player p : srv.getOnlinePlayers())
 					{
-						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20,10));
-						p.sendMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD +  countdown + " Sekunden" + ChatColor.RED +" ! Bereitet euch vor!");
+						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
+						p.sendMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" ! Bereitet euch vor!");
+						
 					}
+					SecGlob-=5;
 				}
 				else
 				{
-					srv.broadcastMessage(ChatColor.RED + "BATTLEGROUNDS startet! Viel Erfolg!!");
+					srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
+					for(Player p : srv.getOnlinePlayers())
+					{
+						p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
+						p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+						String playerId = "Players." + p.getPlayer().getUniqueId().toString() + "("+p.getPlayer().getDisplayName()+")";
+						getConfig().set(playerId + ".JPCanceled",true);
+						saveConfig();
+						srv.getScheduler().cancelTask(taskId);
+					}
 				}
 				
-				countdown-=5;
     		}
     	},0, 5*20);
-
-		srv.getScheduler().scheduleSyncDelayedTask(this, new Runnable()
-		{
-			public void run()
-			{
-				for(Player p : srv.getOnlinePlayers())
-				{
-					p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
-				}
-    		}
-    	}, 30*20);
-		
 	}
 
 	@Override 
