@@ -21,6 +21,7 @@ public class Battlegrounds extends JavaPlugin {
 	
 	private Server srv = this.getServer();
 	private boolean isStarted;
+	private int SecGlob;
 
 	@Override
 	public void onEnable(){
@@ -50,7 +51,8 @@ public class Battlegrounds extends JavaPlugin {
 		this.getConfig()
 				.options()
 				.header("#Willkommen bei Battlegrounds! Danke, dass du mein Plugin benutzt. Für Feedback, nutze bitte den Diskussionsthread auf der Spigot-Downloadpage. "
-						+ "\n#Dieses Plugin basiert auf dem Spielmodus VARO, dessen geistlicher Inhaber ich nicht bin. Von mir stammt lediglich die Umsetzung in Java.");
+						+ "\n#Dieses Plugin basiert auf dem Spielmodus VARO, dessen geistlicher Inhaber ich nicht bin. Von mir stammt lediglich die Umsetzung in Java."
+						+ "Vermeide es, die Configparameter anzupassen.");
 		this.getConfig().addDefault("Battlegrounds.commands.STATUS", false);
 		isStarted = this.getConfig().getBoolean("Battlegrounds.commands.STATUS");
 		getConfig().options().copyDefaults(true);
@@ -103,10 +105,14 @@ public class Battlegrounds extends JavaPlugin {
                                 		
                                 		if(!getConfig().contains("Players." + p.getUniqueId().toString()))
                             			{
-                                			getConfig().set("Players." + p.getUniqueId().toString() + "("+p.getDisplayName()+")" + ".Dead",false);
-                                			getConfig().set("Players." + p.getUniqueId().toString() + "("+p.getDisplayName()+")" + ".Kills",0);
-                                			getConfig().set("Players." + p.getUniqueId().toString() + "("+p.getDisplayName()+")" + ".KilledBy","");
-
+                                			String playerId = "Players." + p.getUniqueId().toString() + "("+p.getDisplayName()+")";
+                                			getConfig().set(playerId + ".Dead",false);
+                                			getConfig().set(playerId + ".Kills",0);
+                                			getConfig().set(playerId + ".KilledBy","");
+                                			getConfig().set(playerId + ".JPTaskId",0);
+                                			getConfig().set(playerId + ".JPCanceled",false);
+                                			getConfig().set(playerId + ".JPInvincible",20);
+     
                                 			saveConfig();
                             			}
                                 		
@@ -126,23 +132,23 @@ public class Battlegrounds extends JavaPlugin {
         }
     	return false;
     }
-    
 
-    
 	private void StartGame() 
 	{
+		SecGlob = 30;
 		srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
+			
 			public void run()
 			{
-				int sec = 30;
-				
-				if(sec > 0)
+				final int sec = SecGlob;
+				int countdown = sec;
+				if(countdown > 0)
 				{
 					for(Player p : srv.getOnlinePlayers())
 					{
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20,10));
-						srv.broadcastMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD +  sec + " Sekunden" + ChatColor.RED +" ! Bereitet euch vor!");
+						p.sendMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD +  countdown + " Sekunden" + ChatColor.RED +" ! Bereitet euch vor!");
 					}
 				}
 				else
@@ -150,9 +156,9 @@ public class Battlegrounds extends JavaPlugin {
 					srv.broadcastMessage(ChatColor.RED + "BATTLEGROUNDS startet! Viel Erfolg!!");
 				}
 				
-				sec--;
+				countdown-=5;
     		}
-    	},0, 30*20);
+    	},0, 5*20);
 
 		srv.getScheduler().scheduleSyncDelayedTask(this, new Runnable()
 		{
