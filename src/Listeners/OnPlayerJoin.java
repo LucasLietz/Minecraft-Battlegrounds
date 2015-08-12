@@ -21,28 +21,35 @@ public class OnPlayerJoin implements Listener{
     private Server s;
     private JoinedPlayer _jp;
 	private int invincibleTime = 20;
-	private boolean bgStarted=false;
+	private boolean bgStarted;
 
-    public OnPlayerJoin(Battlegrounds instance, Server server, boolean isStarted) {
+    public OnPlayerJoin(Battlegrounds instance, Server server) {
         plugin = instance;
         s=server;
-        bgStarted = isStarted;
+        bgStarted = plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerJoinEvent event) {
-    	if(bgStarted)
-    	{
-	    	JoinedPlayer jp = new JoinedPlayer();
-	    	jp.invincible = 20;
-	    	jp.player = event.getPlayer();
-	    	jp.taskId = 0;
-	    	jp.canceled = false;
-	
-	    	event.setJoinMessage(ChatColor.GOLD + jp.player.getDisplayName() + ChatColor.DARK_AQUA + " hat den Server betreten. Er ist in " + invincibleTime + " Sekunden angreifbar!");  	
+    	
+    	  	boolean joinPlayer = plugin.getConfig().getBoolean("Players." + event.getPlayer().getUniqueId().toString() + "("+event.getPlayer().getDisplayName()+")" + ".Dead");
 	    	
-	    	startScheduler(jp);
-    	}
+	    	if(bgStarted && !joinPlayer)
+	    	{
+		    	JoinedPlayer jp = new JoinedPlayer();
+		    	jp.invincible = 20;
+		    	jp.player = event.getPlayer();
+		    	jp.taskId = 0;
+		    	jp.canceled = false;
+		
+		    	event.setJoinMessage(ChatColor.GOLD + jp.player.getDisplayName() + ChatColor.DARK_AQUA + " hat den Server betreten. Er ist in " + invincibleTime + " Sekunden angreifbar!");  	
+		    	
+		    	startScheduler(jp);
+	    	}
+	    	else
+	    	{
+	    		event.getPlayer().kickPlayer(ChatColor.RED + "Du kannst nicht mehr beitreten, da du bereits gestorben bist.");
+	    	}
     }
     
     public void startScheduler(JoinedPlayer jp){

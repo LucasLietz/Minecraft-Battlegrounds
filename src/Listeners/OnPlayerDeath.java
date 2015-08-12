@@ -15,10 +15,10 @@ public class OnPlayerDeath implements Listener{
     private Server s;
     private boolean bgStarted;
 
-    public OnPlayerDeath(Battlegrounds instance, Server server, boolean isStarted) {
+    public OnPlayerDeath(Battlegrounds instance, Server server) {
         plugin = instance;
         s=server;
-        bgStarted = isStarted;
+        bgStarted = plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -31,20 +31,27 @@ public class OnPlayerDeath implements Listener{
         	
         	String killer = "";
         	
-        	if(killerObj != null){
+        	if(killerObj != null)
+        	{
         		killer = killerObj.getDisplayName();
-        	}else{
+        	}
+        	else
+        	{
         		killer = "";
         	}
-        	if(!killer.isEmpty()){
+        	if(!killer.isEmpty())
+        	{
         		event.setDeathMessage(ChatColor.GOLD + victim + ChatColor.DARK_AQUA + " wurde von " +ChatColor.GOLD + killer + ChatColor.DARK_AQUA + " getötet!");
-        		s.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+        		s.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+        		{
         			public void run(){
         				victimObj.kickPlayer(ChatColor.RED + "Du bist gestorben." + ChatColor.RED + " Damit bist du aus Battlegrounds ausgeschieden!");
         			}
         		},5*20);
         		
-        	}else{
+        	}
+        	else
+        	{
         		event.setDeathMessage(ChatColor.GOLD + victim + ChatColor.DARK_AQUA + " wurde getötet!");
         		s.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
         			public void run(){
@@ -52,6 +59,16 @@ public class OnPlayerDeath implements Listener{
         			}
         		},5*20);
         	}
+        	String killedPlayerUUID = victimObj.getUniqueId().toString();
+        	String killerUUID = killerObj.getUniqueId().toString();
+        	String killerDisplayName = killerObj.getDisplayName() != null ? killerObj.getDisplayName() : victimObj.getLastDamageCause().toString();
+        	String victimDisplayName = victimObj.getDisplayName();
+        	int killerTotalKills = plugin.getConfig().getInt("Players." + killerUUID + "("+killerDisplayName+")" + ".Kills");
+			plugin.getConfig().set("Players." + killedPlayerUUID + "("+victimDisplayName+")" + ".Dead",true);
+			plugin.getConfig().set("Players." + killerUUID + "("+killerDisplayName+")" + ".Kills",killerTotalKills+1);
+			plugin.getConfig().set("Players." + killedPlayerUUID + "("+victimObj.getDisplayName()+")" + ".KilledBy",killerDisplayName);
+			plugin.saveConfig();
+			
     	}
     	
     }
