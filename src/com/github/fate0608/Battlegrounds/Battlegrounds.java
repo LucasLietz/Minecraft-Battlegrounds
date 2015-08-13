@@ -1,22 +1,21 @@
 package com.github.fate0608.Battlegrounds;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.Permissions;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.json.simple.JSONObject;
+import org.yaml.snakeyaml.Yaml;
 
 public class Battlegrounds extends JavaPlugin {
 	
@@ -85,7 +84,8 @@ public class Battlegrounds extends JavaPlugin {
 			                    }
 			                    return true;
 			                }
-                            else if((args[0].equalsIgnoreCase("start")))
+                            
+                            if((args[0].equalsIgnoreCase("start")))
                             {
                             	if(!getConfig().getBoolean("STATUS"))
                             	{
@@ -93,6 +93,22 @@ public class Battlegrounds extends JavaPlugin {
                             		saveConfig();
                             		StartGame(30);
                             	}
+                            }
+                            
+                            if((args[0].equalsIgnoreCase("statistics")))
+                            {
+                            	/**
+                            	 * Add a one page statistic about alive players, kills they have, playtime(?)
+                            	 */
+                            	
+                            	HashMap<String, Integer> playersStatistic = new HashMap<String, Integer>();
+                            	
+                            	String jsonConverted = convertToJson("THE HOLE YML FILE");
+                            	
+                            	
+                            	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
+                            										   + "~Top-Players:\n"
+                            										   + "~" + playersStatistic);
                             }
                            
                             if(sender.isOp())
@@ -168,6 +184,14 @@ public class Battlegrounds extends JavaPlugin {
 				
     		}
     	},0, 5*20);
+	}
+	
+	private static String convertToJson(String yamlString) {
+	    Yaml yaml= new Yaml();
+	    Map<String,Object> map= (Map<String, Object>) yaml.load(yamlString);
+
+	    JSONObject jsonObject=new JSONObject(map);
+	    return jsonObject.toString();
 	}
 
 	@Override 
