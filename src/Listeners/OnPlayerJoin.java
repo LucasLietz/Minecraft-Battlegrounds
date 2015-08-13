@@ -29,16 +29,22 @@ public class OnPlayerJoin implements Listener{
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerJoinEvent event) 
     {
-    		String playerId = "Players." + event.getPlayer().getUniqueId().toString() + "("+event.getPlayer().getDisplayName()+")";
+    		String playerId = "Players.UniqueId" + event.getPlayer().getUniqueId().toString();
     	  	boolean joinPlayer = plugin.getConfig().getBoolean(playerId + ".Dead");
-
-    	  	plugin.getConfig().set(playerId + ".JPTaskId",0);
-    	  	plugin.getConfig().set(playerId + ".JPInvincible",20);
-    	  	plugin.getConfig().set(playerId + ".JPCanceled",false);
-    	  	plugin.saveConfig();
 	    	
-	    	if(!joinPlayer)
+    	  	
+    	  	if(!joinPlayer)
 	    	{
+				plugin.getConfig().set(playerId + ".Nickname",event.getPlayer().getDisplayName());
+				plugin.getConfig().set(playerId + ".Dead",false);
+				plugin.getConfig().set(playerId + ".Kills",0);
+				plugin.getConfig().set(playerId + ".KilledBy","");
+				plugin.getConfig().set(playerId + ".JPTaskId",0);
+				plugin.getConfig().set(playerId + ".JPCanceled",false);
+				plugin.getConfig().set(playerId + ".JPInvincible",20);
+	    	  	plugin.saveConfig();
+	    	
+
 		    	if(bgStarted)
 		    	{
 			    	event.setJoinMessage(ChatColor.GOLD + event.getPlayer().getDisplayName() + ChatColor.DARK_AQUA + " hat den Server betreten. Er ist in " + invincibleTime + " Sekunden angreifbar!");  	
@@ -57,26 +63,26 @@ public class OnPlayerJoin implements Listener{
     
     public void startScheduler(PlayerJoinEvent pje)
     {
-		String playerId = "Players." + pje.getPlayer().getUniqueId().toString() + "("+pje.getPlayer().getDisplayName()+")";
+		String playerNick = "Players.Nick)";
 		
-		plugin.getConfig().set(playerId + ".JPTaskId", s.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
+		plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPTaskId", s.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
 			public void run(){
 				
-				int invincible = plugin.getConfig().getInt(playerId + ".JPInvincible");
+				int invincible = plugin.getConfig().getInt(playerNick + pje.getPlayer().getDisplayName() + ".JPInvincible");
 				
     			if(invincible <= 0)
     			{
     				s.broadcastMessage(ChatColor.GOLD + pje.getPlayer().getDisplayName() + ChatColor.DARK_AQUA + " ist jetzt angreifbar!");
-    				plugin.getConfig().set(playerId + ".JPCanceled",true);
+    				plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPCanceled",true);
     				plugin.saveConfig();
-    				cancelScheduler(playerId);
+    				cancelScheduler(playerNick + pje.getPlayer().getDisplayName());
     			}
     			else
     			{
     				s.broadcastMessage(ChatColor.GOLD + pje.getPlayer().getDisplayName() + ChatColor.DARK_AQUA + " ist in " + invincible + " Sekunden angreifbar!");
     			}
     				
-    			plugin.getConfig().set(playerId + ".JPInvincible",invincible-5);
+    			plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPInvincible",invincible-5);
     			plugin.saveConfig();
 
     		}

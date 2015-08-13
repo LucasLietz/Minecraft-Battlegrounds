@@ -1,5 +1,11 @@
 package com.github.fate0608.Battlegrounds;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +29,7 @@ public class Battlegrounds extends JavaPlugin {
 	private boolean isStarted;
 	private int SecGlob = 30;
 	private int taskId;
+	private String json;
 
 	@Override
 	public void onEnable(){
@@ -97,18 +104,34 @@ public class Battlegrounds extends JavaPlugin {
                             
                             if((args[0].equalsIgnoreCase("statistics")))
                             {
-                            	/**
-                            	 * Add a one page statistic about alive players, kills they have, playtime(?)
-                            	 */
+
+                            	getLogger().info(getConfig().getString("Players."));
                             	
-                            	HashMap<String, Integer> playersStatistic = new HashMap<String, Integer>();
-                            	
-                            	String jsonConverted = convertToJson("THE HOLE YML FILE");
+								/*try
+								{
+									FileReader config = new FileReader(getDataFolder() + "\\config.yml");
+									BufferedReader reader = new BufferedReader(config);
+									String text = "";
+									String line = reader.readLine();
+									
+									while(line != null)
+									{
+										text += line;
+										line = reader.readLine();
+									}
+									reader.close();
+									json = text;
+								}
+								catch(Exception ex)
+								{
+									getLogger().info(ex.getMessage());
+								}
+                            	*/
                             	
                             	
                             	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
                             										   + "~Top-Players:\n"
-                            										   + "~" + playersStatistic);
+                            										   + "~"  );
                             }
                            
                             if(sender.isOp())
@@ -124,7 +147,9 @@ public class Battlegrounds extends JavaPlugin {
                                 		
                                 		if(!getConfig().contains("Players." + p.getUniqueId().toString()))
                             			{
-                                			String playerId = "Players." + p.getUniqueId().toString() + "("+p.getDisplayName()+")";
+                                			String playerId = "Players";
+                                			getConfig().set(playerId + ".Nickname",p.getDisplayName());
+                                			getConfig().set(playerId + ".UniqueId",p.getUniqueId().toString());
                                 			getConfig().set(playerId + ".Dead",false);
                                 			getConfig().set(playerId + ".Kills",0);
                                 			getConfig().set(playerId + ".KilledBy","");
@@ -150,6 +175,23 @@ public class Battlegrounds extends JavaPlugin {
                     return false;
         }
     	return false;
+    }
+    
+    public String readConfigFile()
+    {
+        String content = null;
+        File file = new File(getDataFolder() + "config.yml");
+        FileReader reader = null;
+        try {
+            reader = new FileReader(file);
+            char[] chars = new char[(int) file.length()];
+            reader.read(chars);
+            content = new String(chars);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+        return content;
     }
 
 	private void StartGame(int countdown) 
@@ -186,14 +228,6 @@ public class Battlegrounds extends JavaPlugin {
     	},0, 5*20);
 	}
 	
-	private static String convertToJson(String yamlString) {
-	    Yaml yaml= new Yaml();
-	    Map<String,Object> map= (Map<String, Object>) yaml.load(yamlString);
-
-	    JSONObject jsonObject=new JSONObject(map);
-	    return jsonObject.toString();
-	}
-
 	@Override 
 	public void onDisable(){
 
