@@ -1,7 +1,10 @@
 package Listeners;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +17,7 @@ public class OnPlayerDeath implements Listener{
     private Battlegrounds plugin;
     private Server s;
     private boolean bgStarted;
+    private int lastPlayerCount=0;
 
     public OnPlayerDeath(Battlegrounds instance, Server server) {
         plugin = instance;
@@ -76,6 +80,22 @@ public class OnPlayerDeath implements Listener{
         				victimObj.kickPlayer(ChatColor.RED + "Du bist gestorben." + ChatColor.RED + " Damit bist du aus Battlegrounds ausgeschieden!");
         			}
         		},5*20);
+        	}
+        	
+        	lastPlayerCount=0;
+        	
+        	for(OfflinePlayer op : s.getOfflinePlayers())
+        	{
+        		String uuidPlayer = op.getUniqueId().toString();
+        		boolean isDead = plugin.getConfig().getBoolean("Player." + op.getUniqueId().toString() + ".Dead");
+        		if(isDead) lastPlayerCount++;
+        	}
+        	
+        	if(lastPlayerCount<=1)
+        	{
+        		event.getEntity().getKiller().sendMessage(ChatColor.GOLD + "Du hast Battlegrounds gewonnen! Herzlichen Gllückwunsch!");
+        		Location playerLoc = event.getEntity().getKiller().getLocation();
+        		event.getEntity().getKiller().playSound(playerLoc, Sound.FIREWORK_LAUNCH,10,1);
         	}
 
 			

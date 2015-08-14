@@ -110,12 +110,11 @@ public class Battlegrounds extends JavaPlugin {
                             {
                             	
                             	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
-										   + "~Top-Players:\n");
+										   + "~Scoreboard:\n");
 
                             	                            	
                             	for(OfflinePlayer p : srv.getOfflinePlayers())
                             	{
-                            		
                             		int kills = getConfig().getInt("Players." + p.getUniqueId().toString() + ".Kills");
                             		sender.sendMessage(ChatColor.GOLD + p.getName() + ChatColor.DARK_AQUA + " mit " 
                             		+ ChatColor.GOLD + kills + ChatColor.DARK_AQUA +" Kills.");
