@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -29,6 +32,7 @@ public class Battlegrounds extends JavaPlugin {
 	private boolean isStarted;
 	private int SecGlob = 30;
 	private int taskId;
+	private HashMap<String,Integer> statisticsMap;
 	private String json;
 
 	@Override
@@ -104,34 +108,18 @@ public class Battlegrounds extends JavaPlugin {
                             
                             if((args[0].equalsIgnoreCase("statistics")))
                             {
-
-                            	getLogger().info(getConfig().getString("Players."));
-                            	
-								/*try
-								{
-									FileReader config = new FileReader(getDataFolder() + "\\config.yml");
-									BufferedReader reader = new BufferedReader(config);
-									String text = "";
-									String line = reader.readLine();
-									
-									while(line != null)
-									{
-										text += line;
-										line = reader.readLine();
-									}
-									reader.close();
-									json = text;
-								}
-								catch(Exception ex)
-								{
-									getLogger().info(ex.getMessage());
-								}
-                            	*/
-                            	
                             	
                             	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
-                            										   + "~Top-Players:\n"
-                            										   + "~"  );
+										   + "~Top-Players:\n");
+
+                            	                            	
+                            	for(OfflinePlayer p : srv.getOfflinePlayers())
+                            	{
+                            		
+                            		int kills = getConfig().getInt("Players." + p.getUniqueId().toString() + ".Kills");
+                            		sender.sendMessage(ChatColor.GOLD + p.getName() + ChatColor.DARK_AQUA + " mit " 
+                            		+ ChatColor.GOLD + kills + ChatColor.DARK_AQUA +" Kills.");
+                            	}
                             }
                            
                             if(sender.isOp())
@@ -139,29 +127,17 @@ public class Battlegrounds extends JavaPlugin {
                                 if(args[0].equalsIgnoreCase("addplayers"))
                                 {
                                 	sender.sendMessage(ChatColor.DARK_AQUA + "Füge alle Spieler des Servers hinzu!");
-                                	List<Player> Players = new ArrayList<Player>();
-                                	
+                                	List<String> Players = new ArrayList<String>();
                                 	for(Player p : srv.getOnlinePlayers())
                                 	{
-                                		Players.add(p);
-                                		
-                                		if(!getConfig().contains("Players." + p.getUniqueId().toString()))
-                            			{
-                                			String playerId = "Players";
-                                			getConfig().set(playerId + ".Nickname",p.getDisplayName());
-                                			getConfig().set(playerId + ".UniqueId",p.getUniqueId().toString());
-                                			getConfig().set(playerId + ".Dead",false);
-                                			getConfig().set(playerId + ".Kills",0);
-                                			getConfig().set(playerId + ".KilledBy","");
-                                			getConfig().set(playerId + ".JPTaskId",0);
-                                			getConfig().set(playerId + ".JPCanceled",false);
-                                			getConfig().set(playerId + ".JPInvincible",20);
-     
-                                			saveConfig();
-                            			}
-                                		
+                                		Players.add(p.getUniqueId().toString());
+                            			SetPlayerVariables(p);
+                            			srv.broadcastMessage(ChatColor.GOLD + p.getDisplayName() + ChatColor.DARK_AQUA + " wurde hinzugefügt.");
+                            			String pid = "Players.BGPlayers";
+                            			getConfig().set(pid,Players);
+                            			saveConfig();
+                            			
                                 	}
-								
                                 }
                             }
                             else
@@ -176,6 +152,19 @@ public class Battlegrounds extends JavaPlugin {
         }
     	return false;
     }
+
+	private void SetPlayerVariables(Player p) {
+		String playerId = "Players." + p.getPlayer().getUniqueId().toString();
+		getConfig().set(playerId + ".Nickname",p.getDisplayName());
+		getConfig().set(playerId + ".Dead",false);
+		getConfig().set(playerId + ".Kills",0);
+		getConfig().set(playerId + ".KilledBy","");
+		getConfig().set(playerId + ".JPTaskId",0);
+		getConfig().set(playerId + ".JPCanceled",false);
+		getConfig().set(playerId + ".JPInvincible",20);
+		getConfig().set(playerId + ".IsBGPlayer", true);
+		saveConfig();
+	}
     
     public String readConfigFile()
     {
@@ -217,7 +206,7 @@ public class Battlegrounds extends JavaPlugin {
 					{
 						p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
 						p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
-						String playerId = "Players." + p.getPlayer().getUniqueId().toString() + "("+p.getPlayer().getDisplayName()+")";
+						String playerId = "Players." + p.getPlayer().getUniqueId().toString();
 						getConfig().set(playerId + ".JPCanceled",true);
 						saveConfig();
 						srv.getScheduler().cancelTask(taskId);

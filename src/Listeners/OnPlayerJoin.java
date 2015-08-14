@@ -29,7 +29,7 @@ public class OnPlayerJoin implements Listener{
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerJoinEvent event) 
     {
-    		String playerId = "Players.UniqueId" + event.getPlayer().getUniqueId().toString();
+    		String playerId = "Players." + event.getPlayer().getUniqueId().toString();
     	  	boolean joinPlayer = plugin.getConfig().getBoolean(playerId + ".Dead");
 	    	
     	  	
@@ -42,6 +42,7 @@ public class OnPlayerJoin implements Listener{
 				plugin.getConfig().set(playerId + ".JPTaskId",0);
 				plugin.getConfig().set(playerId + ".JPCanceled",false);
 				plugin.getConfig().set(playerId + ".JPInvincible",20);
+				plugin.getConfig().set(playerId + ".IsBGPlayer",false);
 	    	  	plugin.saveConfig();
 	    	
 
@@ -63,26 +64,26 @@ public class OnPlayerJoin implements Listener{
     
     public void startScheduler(PlayerJoinEvent pje)
     {
-		String playerNick = "Players.Nick)";
+		String playerNick = "Players." + pje.getPlayer().getUniqueId().toString();
 		
-		plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPTaskId", s.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
+		plugin.getConfig().set(playerNick  + ".JPTaskId", s.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
 			public void run(){
 				
-				int invincible = plugin.getConfig().getInt(playerNick + pje.getPlayer().getDisplayName() + ".JPInvincible");
+				int invincible = plugin.getConfig().getInt(playerNick  + ".JPInvincible");
 				
     			if(invincible <= 0)
     			{
     				s.broadcastMessage(ChatColor.GOLD + pje.getPlayer().getDisplayName() + ChatColor.DARK_AQUA + " ist jetzt angreifbar!");
-    				plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPCanceled",true);
+    				plugin.getConfig().set(playerNick + ".JPCanceled",true);
     				plugin.saveConfig();
-    				cancelScheduler(playerNick + pje.getPlayer().getDisplayName());
+    				cancelScheduler(playerNick);
     			}
     			else
     			{
     				s.broadcastMessage(ChatColor.GOLD + pje.getPlayer().getDisplayName() + ChatColor.DARK_AQUA + " ist in " + invincible + " Sekunden angreifbar!");
     			}
     				
-    			plugin.getConfig().set(playerNick + pje.getPlayer().getDisplayName() + ".JPInvincible",invincible-5);
+    			plugin.getConfig().set(playerNick + ".JPInvincible",invincible-5);
     			plugin.saveConfig();
 
     		}
@@ -99,8 +100,8 @@ public class OnPlayerJoin implements Listener{
     @EventHandler(priority=EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent bbe)
     {	
-    	String playerId = "Players." + bbe.getPlayer().getUniqueId().toString() + "("+bbe.getPlayer().getDisplayName()+")";
-    	boolean canceled = plugin.getConfig().getBoolean(playerId + ".JPCanceled");
+    	String playerNick = "Players." + bbe.getPlayer().getUniqueId().toString();
+    	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
     	if(bgStarted && ! canceled){
     		bbe.setCancelled(true);
     	}
@@ -109,8 +110,8 @@ public class OnPlayerJoin implements Listener{
     @EventHandler(priority=EventPriority.HIGHEST)
     public void move(PlayerMoveEvent move)
     {
-    	String playerId = "Players." + move.getPlayer().getUniqueId().toString() + "("+move.getPlayer().getDisplayName()+")";
-    	boolean canceled = plugin.getConfig().getBoolean(playerId + ".JPCanceled");
+    	String playerNick = "Players." + move.getPlayer().getUniqueId().toString();
+    	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
     	if(bgStarted && ! canceled){
 	        Location from=move.getFrom();
 	        Location to=move.getTo();
@@ -128,8 +129,8 @@ public class OnPlayerJoin implements Listener{
     @EventHandler(priority=EventPriority.HIGHEST)
     public void move(EntityDamageEvent damage)
     {
-    	String playerId = "Players." + damage.getEntity().getUniqueId().toString() + "("+ damage.getEntity().getName()+")";
-    	boolean canceled = plugin.getConfig().getBoolean(playerId + ".JPCanceled");
+    	String playerNick = "Players." + damage.getEntity().getUniqueId().toString();
+    	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
     	if(bgStarted &&  ! canceled){
         	Entity player = damage.getEntity();
         	damage.setCancelled(true);

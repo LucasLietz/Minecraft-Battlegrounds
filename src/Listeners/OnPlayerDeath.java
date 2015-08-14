@@ -22,7 +22,8 @@ public class OnPlayerDeath implements Listener{
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onLogin(PlayerDeathEvent event) {
+    public void onDeath(PlayerDeathEvent event) 
+    {
     	if(bgStarted)
     	{
     		String victim = event.getEntity().getDisplayName();
@@ -34,17 +35,17 @@ public class OnPlayerDeath implements Listener{
         	{
 	        	String killerUUID = killerObj.getUniqueId().toString();
 	        	String killerDisplayName = killerObj.getDisplayName() != null ? killerObj.getDisplayName() : victimObj.getLastDamageCause().toString();
-	        	int killerTotalKills = plugin.getConfig().getInt("Players." + killerUUID + "("+killerDisplayName+")" + ".Kills");
-				plugin.getConfig().set("Players." + killedPlayerUUID + "("+victimObj.getDisplayName()+")" + ".KilledBy",killerDisplayName);
-	        	plugin.getConfig().set("Players." + killerUUID + "("+killerDisplayName+")" + ".Kills",killerTotalKills+1);
+	        	int killerTotalKills = plugin.getConfig().getInt("Players." + killerUUID  + ".Kills");
+				plugin.getConfig().set("Players." + killedPlayerUUID + ".KilledBy",killerDisplayName);
+	        	plugin.getConfig().set("Players." + killerUUID + ".Kills",killerTotalKills+1);
         	}
         	else
         	{				
-        		plugin.getConfig().set("Players." + killedPlayerUUID + "("+victimObj.getDisplayName()+")" + ".KilledBy","");
+        		plugin.getConfig().set("Players." + killedPlayerUUID  + ".KilledBy","");
         	}
         	String victimDisplayName = victimObj.getDisplayName();
 
-			plugin.getConfig().set("Players." + killedPlayerUUID + "("+victimDisplayName+")" + ".Dead",true);
+			plugin.getConfig().set("Players." + killedPlayerUUID  + ".Dead",true);
 			
 
 			plugin.saveConfig();
@@ -58,7 +59,7 @@ public class OnPlayerDeath implements Listener{
 
         	if(!killer.isEmpty())
         	{
-        		event.setDeathMessage(ChatColor.GOLD + victim + ChatColor.DARK_AQUA + " wurde von " +ChatColor.GOLD + killer + ChatColor.DARK_AQUA + " getötet!");
+        		event.setDeathMessage(ChatColor.GOLD + victim + ChatColor.DARK_AQUA + " wurde von " + ChatColor.GOLD + killer + ChatColor.DARK_AQUA + " getötet!");
         		s.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
         		{
         			public void run(){
