@@ -91,11 +91,24 @@ public class OnPlayerDeath implements Listener{
         		if(isDead) lastPlayerCount++;
         	}
         	
-        	if(lastPlayerCount<=1)
+        	if(lastPlayerCount==1)
         	{
-        		event.getEntity().getKiller().sendMessage(ChatColor.GOLD + "Du hast Battlegrounds gewonnen! Herzlichen Gllückwunsch!");
-        		Location playerLoc = event.getEntity().getKiller().getLocation();
-        		event.getEntity().getKiller().playSound(playerLoc, Sound.FIREWORK_LAUNCH,10,1);
+        		if(event.getEntity().getKiller() != null)
+        		{
+            		event.getEntity().getKiller().sendMessage(ChatColor.GOLD + "Du hast Battlegrounds gewonnen! Herzlichen Gllückwunsch!");
+            		Location playerLoc = event.getEntity().getKiller().getLocation();
+            		event.getEntity().getKiller().playSound(playerLoc, Sound.FIREWORK_LAUNCH,10,1);
+        		}
+        		else
+        		{
+        			for(Player p : s.getOnlinePlayers())
+        			{
+        				p.sendMessage(ChatColor.GOLD + "Du hast Battlegrounds gewonnen! Herzlichen Gllückwunsch!");
+                		Location playerLoc = event.getEntity().getKiller().getLocation();
+                		p.playSound(playerLoc, Sound.FIREWORK_LAUNCH,10,1);
+        			}
+        		}
+
         	}
 
 			

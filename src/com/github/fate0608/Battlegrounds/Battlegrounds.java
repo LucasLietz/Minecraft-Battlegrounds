@@ -104,9 +104,7 @@ public class Battlegrounds extends JavaPlugin {
                             		saveConfig();
                             		StartGame(30);
                             	}
-                            }
-                            
-                            if((args[0].equalsIgnoreCase("statistics")))
+                            }else if((args[0].equalsIgnoreCase("statistics")))
                             {
                             	
                             	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
@@ -119,9 +117,7 @@ public class Battlegrounds extends JavaPlugin {
                             		sender.sendMessage(ChatColor.GOLD + p.getName() + ChatColor.DARK_AQUA + " mit " 
                             		+ ChatColor.GOLD + kills + ChatColor.DARK_AQUA +" Kills.");
                             	}
-                            }
-                           
-                            if(sender.isOp())
+                            }else if(sender.isOp())
                             {
                                 if(args[0].equalsIgnoreCase("addplayers"))
                                 {
@@ -138,11 +134,18 @@ public class Battlegrounds extends JavaPlugin {
                             			
                                 	}
                                 }
-                            }
-                            else
+                            }else if(!sender.isOp())
                             {
                             	sender.sendMessage(ChatColor.RED + "Du hast nicht die Berechtigungen dafür!");
                             }
+                            else
+                            {
+                            	sender.sendMessage(ChatColor.RED + "Syntax: /bg " + ChatColor.GREEN + "[addplayers, status, start, statistics]");
+                            }
+                        }
+                        else
+                        {
+                        	sender.sendMessage(ChatColor.RED + "Syntax: /bg [addplayers, status, start, statistics]");
                         }
 
                         return false;  
