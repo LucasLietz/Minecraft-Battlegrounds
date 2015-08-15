@@ -1,18 +1,11 @@
 package Listeners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Server;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.github.fate0608.Battlegrounds.Battlegrounds;
 
@@ -34,7 +27,7 @@ public class OnPlayerJoin implements Listener{
     {
     		String playerId = "Players." + event.getPlayer().getUniqueId().toString();
     	  	boolean joinPlayer = plugin.getConfig().getBoolean(playerId + ".Dead");
-	    	
+    	  	bgStarted = plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS");
     	  	
     	  	if(!joinPlayer)
 	    	{
@@ -64,23 +57,7 @@ public class OnPlayerJoin implements Listener{
 	    		event.getPlayer().kickPlayer(ChatColor.RED + "Du kannst nicht mehr beitreten, da du bereits gestorben bist.");
 	    	}
     }
-    
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onQuit(PlayerQuitEvent event) 
-    {
-    	String playerId = "Players." + event.getPlayer().getUniqueId().toString();
-    	boolean joinPlayer = plugin.getConfig().getBoolean(playerId + ".Dead");
-    	if(joinPlayer)
-    	{
-    		event.setQuitMessage("");
-    	}
-    	else
-    	{
-    		String playerNick = event.getPlayer().getDisplayName();
-    		event.setQuitMessage(ChatColor.GOLD + playerNick + ChatColor.DARK_AQUA + " hat den Server verlassen!");
-    	}
-    }
-    
+
     public void startScheduler(PlayerJoinEvent pje)
     {
 		String playerNick = "Players." + pje.getPlayer().getUniqueId().toString();
@@ -116,73 +93,5 @@ public class OnPlayerJoin implements Listener{
     	
     	int taskId = plugin.getConfig().getInt(pid + ".JPTaskId");
     	s.getScheduler().cancelTask(taskId);	
-    }
-    
-    @EventHandler(priority=EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent bbe)
-    {	
-    	if(plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS") == true)
-    	{
-        	String playerNick = "Players." + bbe.getPlayer().getUniqueId().toString();
-        	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
-        	if(bgStarted && ! canceled)
-        	{
-        		bbe.setCancelled(true);
-        	}
-    	}
-    	else
-    	{
-    		bbe.setCancelled(true);
-    	}
-    }
-    
-    @EventHandler(priority=EventPriority.HIGHEST)
-    public void move(PlayerMoveEvent move)
-    {
-    	String playerNick = "Players." + move.getPlayer().getUniqueId().toString();
-    	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
-    	if(bgStarted && ! canceled){
-	        Location from=move.getFrom();
-	        Location to=move.getTo();
-	        double x=Math.floor(from.getX());
-	        double z=Math.floor(from.getZ());
-	        if(Math.floor(to.getX())!=x||Math.floor(to.getZ())!=z)
-	        {
-	            x+=.5;
-	            z+=.5;
-	            move.getPlayer().teleport(new Location(from.getWorld(),x,from.getY(),z,from.getYaw(),from.getPitch()));
-	        }
-		 }
-    }
-    
-    @EventHandler(priority=EventPriority.HIGHEST)
-    public void move(EntityDamageEvent damage)
-    {    	
-    	
-    	String playerNick = "Players." + damage.getEntity().getUniqueId().toString();
-    	boolean canceled = plugin.getConfig().getBoolean(playerNick + ".JPCanceled");
-    	Entity player = damage.getEntity();
-    	bgStarted = plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS");
-    	
-    	if(!bgStarted)
-    	{
-	    	if(player.getType() == EntityType.PLAYER)
-	    	{
-	        	damage.setCancelled(true);
-	        	player.sendMessage(ChatColor.RED + "Die Schutzzeit läuft noch! Du kannst nicht angreifen oder angegriffen werden!");
-	    	}
-    	}
-    	else if(bgStarted &&  !canceled)
-        	{
-            	if(player.getType() == EntityType.PLAYER)
-            	{
-                	damage.setCancelled(true);
-                	player.sendMessage(ChatColor.RED + "Die Schutzzeit läuft noch! Du kannst nicht angreifen oder angegriffen werden!");
-            	}
-        	}
-        else if(bgStarted && canceled)
-        	{
-        		damage.setCancelled(false);
-        	}
     }
 }
