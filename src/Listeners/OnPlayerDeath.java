@@ -28,6 +28,7 @@ public class OnPlayerDeath implements Listener{
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDeath(PlayerDeathEvent event) 
     {
+    	bgStarted = plugin.getConfig().getBoolean("Battlegrounds.commands.STATUS");
     	if(bgStarted)
     	{
     		String victim = event.getEntity().getDisplayName();
@@ -47,7 +48,6 @@ public class OnPlayerDeath implements Listener{
         	{				
         		plugin.getConfig().set("Players." + killedPlayerUUID  + ".KilledBy","");
         	}
-        	String victimDisplayName = victimObj.getDisplayName();
 
 			plugin.getConfig().set("Players." + killedPlayerUUID  + ".Dead",true);
 			
@@ -86,12 +86,13 @@ public class OnPlayerDeath implements Listener{
         	
         	for(OfflinePlayer op : s.getOfflinePlayers())
         	{
+        		
         		String uuidPlayer = op.getUniqueId().toString();
-        		boolean isDead = plugin.getConfig().getBoolean("Player." + op.getUniqueId().toString() + ".Dead");
+        		boolean isDead = plugin.getConfig().getBoolean("Player." + uuidPlayer + ".Dead");
         		if(isDead) lastPlayerCount++;
         	}
-        	
-        	if(lastPlayerCount==1)
+        	int players = s.getOfflinePlayers().length;
+        	if(lastPlayerCount==players-1)
         	{
         		if(event.getEntity().getKiller() != null)
         		{

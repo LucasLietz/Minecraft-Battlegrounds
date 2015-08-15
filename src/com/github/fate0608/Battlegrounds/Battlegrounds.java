@@ -1,15 +1,10 @@
 package com.github.fate0608.Battlegrounds;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -17,14 +12,10 @@ import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.json.simple.JSONObject;
-import org.yaml.snakeyaml.Yaml;
 
 public class Battlegrounds extends JavaPlugin {
 	
@@ -32,30 +23,20 @@ public class Battlegrounds extends JavaPlugin {
 	private boolean isStarted;
 	private int SecGlob = 30;
 	private int taskId;
-	private HashMap<String,Integer> statisticsMap;
-	private String json;
-
+	
 	@Override
 	public void onEnable(){
 			
 		
 		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerDeath(this,getServer()),this);
 		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerJoin(this,getServer()),this);
+		getServer().getPluginManager().registerEvents(new Listeners.OnBlockBreak(this),this);
+		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerMove(this),this);
+		getServer().getPluginManager().registerEvents(new Listeners.OnPlayerQuit(this),this);
+		getServer().getPluginManager().registerEvents(new Listeners.OnDamage(this),this);
+		
 		initConfig();
 		this.getLogger().info("Battlegrounds wurde aktiviert.");
-		
-		/* Maybe later: add a seperate file players to the config folder, instead of using the plugin.yml
-		if(!playersFile.exists()){
-			try 
-			{
-				playersFile.createNewFile();
-			} 
-			catch (IOException e) 
-			{
-				getLogger().info(e.getMessage());
-			}
-		}
-		*/
 	}
 
 	private void initConfig() {
@@ -133,6 +114,12 @@ public class Battlegrounds extends JavaPlugin {
                             			saveConfig();
                             			
                                 	}
+                                }
+                                
+                                if((args[0].equalsIgnoreCase("reload")))
+                                {
+                                	this.reloadConfig();
+                                	sender.sendMessage(ChatColor.DARK_AQUA + "Plugin wurde reloaded!");
                                 }
                             }else if(!sender.isOp())
                             {
