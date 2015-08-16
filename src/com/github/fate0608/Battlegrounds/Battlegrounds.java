@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.Sound;
@@ -100,27 +102,9 @@ public class Battlegrounds extends JavaPlugin {
                             	}
                             }else if(sender.isOp())
                             {
-                                if(args[0].equalsIgnoreCase("addplayers"))
-                                {
-                                	sender.sendMessage(ChatColor.DARK_AQUA + "Füge alle Spieler des Servers hinzu!");
-                                	List<String> Players = new ArrayList<String>();
-                                	for(Player p : srv.getOnlinePlayers())
-                                	{
-                                		Players.add(p.getUniqueId().toString());
-                            			SetPlayerVariables(p);
-                            			srv.broadcastMessage(ChatColor.GOLD + p.getDisplayName() + ChatColor.DARK_AQUA + " wurde hinzugefügt.");
-                            			String pid = "Players.BGPlayers";
-                            			getConfig().set(pid,Players);
-                            			saveConfig();
-                            			
-                                	}
-                                }
-                                
-                                if((args[0].equalsIgnoreCase("reload")))
-                                {
-                                	this.reloadConfig();
-                                	sender.sendMessage(ChatColor.DARK_AQUA + "Plugin wurde reloaded!");
-                                }
+                                AddPlayers(sender, args);
+                                ReloadPlugin(sender, args);
+
                             }else if(!sender.isOp())
                             {
                             	sender.sendMessage(ChatColor.RED + "Du hast nicht die Berechtigungen dafür!");
@@ -129,6 +113,18 @@ public class Battlegrounds extends JavaPlugin {
                             {
                             	sender.sendMessage(ChatColor.RED + "Syntax: /bg " + ChatColor.GREEN + "[addplayers, status, start, statistics]");
                             }
+                        }
+                        else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("assignspawns"))
+                        {
+                        	if(sender.isOp())
+                        	{
+                                SetSpawnpoint(sender, args);
+                                AssignPlayersToSpawns(sender, args);
+                        	}
+                        	else
+                        	{
+                        		sender.sendMessage(ChatColor.RED + "Du hast nicht die nötigen Rechte!");
+                        	}
                         }
                         else
                         {
@@ -141,6 +137,130 @@ public class Battlegrounds extends JavaPlugin {
         }
     	return false;
     }
+
+	private void AssignPlayersToSpawns(CommandSender sender, String[] args) 
+	{
+		//Portet Spieler in die Locations!
+		
+		if(args[0].equalsIgnoreCase("assignspawns") && args[1] != null)
+		{
+
+			int amount = 0 ;
+			try
+	        {
+	        	amount = Integer.parseInt(args[1]);
+	        }
+	        catch(Exception ex)
+	        {
+	        	sender.sendMessage(ChatColor.RED + "Das übergebene Argument konnte nicht als Ganzzahl ermittelt werden. Syntax: /bg assignspawns [MENGE DER SPIELER]");
+	        }
+
+			List<Location> locationList = new ArrayList<Location>();
+			locationList.addAll(GetSpawnpoints(locationList, amount, sender));
+			
+			int i = 0; 
+			
+			for(Player p : getServer().getOnlinePlayers())
+			{
+				Location loc = locationList.get(i);
+				TeleportPlayerToDistinctLocation(p, loc);
+				locationList.remove(i);
+				i++;
+			}
+		}
+	}
+
+	private void TeleportPlayerToDistinctLocation(Player p, Location loc) 
+	{
+		p.teleport(new Location(loc.getWorld(),loc.getX(),loc.getY()+1,loc.getZ()));
+	}
+
+	private Collection<Location> GetSpawnpoints(List<Location> locationList, int amount, CommandSender sender) 
+	{		
+		Player senderPlayer = (Player)sender;
+		for(int i = 1; i<=amount; i++)
+		{
+			String root = "Spawns.";
+			String xS = getConfig().getString(root+amount);
+			String xM = xS.substring(xS.indexOf("x",0)+2, xS.indexOf("y",0)-1);
+			
+			
+			
+			String yS = getConfig().getString(root+amount);
+			String yM = yS.substring(yS.indexOf("y",0)+2, yS.indexOf("z",0)-1);
+			
+			String zS = getConfig().getString(root+amount);
+			String zM = zS.substring(zS.indexOf("z",0)+2, zS.indexOf("z",0)+8);
+			
+			float x = Float.parseFloat(xM);
+			double y = Float.parseFloat(yM);
+			double z = Float.parseFloat(zM);
+			
+			/*
+			getServer().getLogger().info("xS" + xS + "yS" + yS + "zS" + zS);
+			getServer().getLogger().info("xM" + xM + "yM" + yM + "zM" + zM);
+			getServer().getLogger().info("x" + x + "y" + y + "z" + z);
+			*/
+			
+			Location loc = new Location(senderPlayer.getWorld(),x,y,z);
+			
+			locationList.add(loc);
+		}
+			
+		return locationList;
+	}
+
+	private void SetSpawnpoint(CommandSender sender, String[] args) 
+	{
+		Player p = (Player)sender;
+		if(args[0].equalsIgnoreCase("setspawn") && args[1] != null)
+		{
+			int playerSpawn=0;
+			try
+			{
+				playerSpawn = Integer.parseInt(args[1]);
+			}
+			catch(Exception ex)
+			{
+				sender.sendMessage(ChatColor.RED + "Das übergebene Argument konnte nicht als Ganzzahl ermittelt werden. Syntax: /bg setspawn [Spawn ID]");
+			}
+			
+			Location location = p.getLocation();
+			String root = "Spawns.";
+			String locationXYZ = "x:" + location.getX() + "y:"+ location.getY() + "z:"+location.getZ();
+			getConfig().set(root + playerSpawn, locationXYZ);
+			saveConfig();
+			sender.sendMessage(ChatColor.DARK_AQUA + "Der Spawnpunkt wurde erfolgreich erstellt!");
+		}
+	}
+
+	private void ReloadPlugin(CommandSender sender, String[] args) 
+	{
+		if((args[0].equalsIgnoreCase("reload")))
+		{
+			this.reloadConfig();
+			sender.sendMessage(ChatColor.DARK_AQUA + "Plugin wurde reloaded!");
+		}
+	}
+
+	private void AddPlayers(CommandSender sender, String[] args) 
+	{
+		if(args[0].equalsIgnoreCase("addplayers"))
+		{
+			sender.sendMessage(ChatColor.DARK_AQUA + "Füge alle Spieler des Servers hinzu!");
+			List<String> Players = new ArrayList<String>();
+			for(Player p : srv.getOnlinePlayers())
+			{
+				Players.add(p.getUniqueId().toString());
+				SetPlayerVariables(p);
+				srv.broadcastMessage(ChatColor.GOLD + p.getDisplayName() + ChatColor.DARK_AQUA + " wurde hinzugefügt.");
+				String pid = "Players.BGPlayers";
+				getConfig().set(pid,Players);
+				saveConfig();
+				
+			}
+		}
+	}
 
 	private void SetPlayerVariables(Player p) {
 		String playerId = "Players." + p.getPlayer().getUniqueId().toString();
