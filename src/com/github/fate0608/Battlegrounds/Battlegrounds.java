@@ -158,15 +158,18 @@ public class Battlegrounds extends JavaPlugin {
 			List<Location> locationList = new ArrayList<Location>();
 			locationList.addAll(GetSpawnpoints(locationList, amount, sender));
 			
-			int i = 0; 
+			int i = Integer.parseInt(args[1].toString()); 
 			
-			for(Player p : getServer().getOnlinePlayers())
-			{
-				Location loc = locationList.get(i);
-				TeleportPlayerToDistinctLocation(p, loc);
-				locationList.remove(i);
-				i++;
-			}
+
+
+					for(Player p : getServer().getOnlinePlayers())
+					{
+						Location loc = locationList.get(0);
+						TeleportPlayerToDistinctLocation(p, loc);
+						locationList.remove(0);
+						i--;
+					}
+				
 		}
 	}
 
@@ -178,30 +181,27 @@ public class Battlegrounds extends JavaPlugin {
 	private Collection<Location> GetSpawnpoints(List<Location> locationList, int amount, CommandSender sender) 
 	{		
 		Player senderPlayer = (Player)sender;
-		for(int i = 1; i<=amount; i++)
+		for(int i = 1; i <= amount; i++)
 		{
 			String root = "Spawns.";
-			String xS = getConfig().getString(root+amount);
+			String xS = getConfig().getString(root+i);
 			String xM = xS.substring(xS.indexOf("x",0)+2, xS.indexOf("y",0)-1);
-			
-			
-			
-			String yS = getConfig().getString(root+amount);
+
+			String yS = getConfig().getString(root+i);
 			String yM = yS.substring(yS.indexOf("y",0)+2, yS.indexOf("z",0)-1);
 			
-			String zS = getConfig().getString(root+amount);
+			String zS = getConfig().getString(root+i);
 			String zM = zS.substring(zS.indexOf("z",0)+2, zS.indexOf("z",0)+8);
 			
 			float x = Float.parseFloat(xM);
-			double y = Float.parseFloat(yM);
-			double z = Float.parseFloat(zM);
+			float y = Float.parseFloat(yM);
+			float z = Float.parseFloat(zM);
 			
-			/*
+/*
 			getServer().getLogger().info("xS" + xS + "yS" + yS + "zS" + zS);
 			getServer().getLogger().info("xM" + xM + "yM" + yM + "zM" + zM);
 			getServer().getLogger().info("x" + x + "y" + y + "z" + z);
-			*/
-			
+*/
 			Location loc = new Location(senderPlayer.getWorld(),x,y,z);
 			
 			locationList.add(loc);
