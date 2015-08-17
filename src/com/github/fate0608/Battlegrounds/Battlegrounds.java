@@ -298,19 +298,39 @@ public class Battlegrounds extends JavaPlugin {
 		{
 			public void run()
 			{
-				if(SecGlob>0)
+				if(SecGlob>=5)
 				{
 					for(Player p : srv.getOnlinePlayers())
 					{
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
-						p.sendMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" ! Bereitet euch vor!");
+						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" !");
 						
 					}
 					SecGlob-=5;
 				}
 				else
 				{
-					srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
+					srv.getScheduler().cancelTask(taskId);
+				}
+				
+    		}
+    	},0, 5*20);
+		
+		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
+		{
+			public void run()
+			{
+				if(SecGlob>=5)
+				{
+					for(Player p : srv.getOnlinePlayers())
+					{
+						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
+						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" !");
+					}
+					SecGlob--;
+				}
+				else
+				{					
 					for(Player p : srv.getOnlinePlayers())
 					{
 						p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
@@ -320,10 +340,12 @@ public class Battlegrounds extends JavaPlugin {
 						saveConfig();
 						srv.getScheduler().cancelTask(taskId);
 					}
+					srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
+					srv.broadcastMessage(ChatColor.DARK_AQUA + "Du bist jetzt angreifbar!");
+					srv.getScheduler().cancelTask(taskId);
 				}
-				
     		}
-    	},0, 5*20);
+    	},0, 20);
 	}
 	
 	@Override 
