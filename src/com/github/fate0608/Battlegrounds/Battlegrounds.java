@@ -326,74 +326,38 @@ public class Battlegrounds extends JavaPlugin {
 
 	private void StartGame(int countdown) 
 	{
-		SecGlob = countdown;
-		getLogger().info(":Entry::" + SecGlob);
-		
 		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
 			public void run()
 			{
-				getLogger().info(":Pre:Prüfung:" + SecGlob);
-				if(SecGlob>5)
+				if(SecGlob>0)
 				{
 					for(Player p : srv.getOnlinePlayers())
 					{
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
-						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" Sekunden !");
+						p.sendMessage(ChatColor.RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" ! Bereitet euch vor!");
 						
 					}
-					getLogger().info(":Abzug:" + SecGlob);
 					SecGlob-=5;
-					
 				}
 				else
 				{
-					getLogger().info(":CANCEL:" + SecGlob + "tid:" + taskId);
-					srv.getScheduler().cancelTask(taskId);
-					getLogger().info(":CANCEL2:" + SecGlob + "tid:" + taskId);
+					srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
+					for(Player p : srv.getOnlinePlayers())
+					{
+						p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
+						p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+						String playerId = "Players." + p.getPlayer().getUniqueId().toString();
+						getConfig().set(playerId + ".JPCanceled",true);
+						saveConfig();
+						srv.getScheduler().cancelTask(taskId);
+					}
 				}
 				
     		}
     	},0, 5*20);
-		
-		getLogger().info(":2ter:Sched:" + SecGlob);
-		
-		if(SecGlob<=10)
-		{
-			getLogger().info(":2ter:Sched:IN:" + SecGlob);
-			taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
-			{
-				public void run()
-				{
-					getLogger().info(":2ter:Sched:IN2:" + SecGlob);
-					if(SecGlob<=10)
-					{
-						for(Player p : srv.getOnlinePlayers())
-						{
-							p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
-							p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" Sekunden!!!");
-						}
-						SecGlob--;
-					}
-					else
-					{					
-						for(Player p : srv.getOnlinePlayers())
-						{
-							p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
-							p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
-							String playerId = "Players." + p.getPlayer().getUniqueId().toString();
-							getConfig().set(playerId + ".JPCanceled",true);
-							saveConfig();
-							srv.getScheduler().cancelTask(taskId);
-						}
-						srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
-						srv.broadcastMessage(ChatColor.DARK_AQUA + "Du bist jetzt angreifbar!");
-						srv.getScheduler().cancelTask(taskId);
-					}
-		    	}
-		    },0, 20);
+	
 	}
-}
 	
 	@Override 
 	public void onDisable(){
