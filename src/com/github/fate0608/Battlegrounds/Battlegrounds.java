@@ -326,6 +326,8 @@ public class Battlegrounds extends JavaPlugin {
 
 	private void StartGame(int countdown) 
 	{
+		SecGlob = countdown;
+		
 		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
 			public void run()
