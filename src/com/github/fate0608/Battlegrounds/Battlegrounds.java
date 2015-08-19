@@ -23,7 +23,7 @@ public class Battlegrounds extends JavaPlugin {
 	
 	private Server srv = this.getServer();
 	private boolean isStarted;
-	private int SecGlob = 30;
+	private int SecGlob;
 	private int taskId;
 	
 	@Override
@@ -46,7 +46,7 @@ public class Battlegrounds extends JavaPlugin {
 		this.getConfig()
 				.options()
 				.header("#Willkommen bei Battlegrounds! Danke, dass du mein Plugin benutzt. Für Feedback, nutze bitte den Diskussionsthread auf der Spigot-Downloadpage. "
-						+ "\n#Dieses Plugin basiert auf dem Spielmodus VARO, dessen geistlicher Inhaber ich nicht bin. Von mir stammt lediglich die Umsetzung in Java."
+						+ "\n#Dieses Plugin basiert auf dem Spielmodus VARO, dessen geistiger Inhaber ich nicht bin. Von mir stammt lediglich die Umsetzung dieser Variante des beliebten Modus."
 						+ "Vermeide es, die Configparameter anzupassen.");
 		this.getConfig().addDefault("Battlegrounds.commands.STATUS", false);
 		isStarted = this.getConfig().getBoolean("Battlegrounds.commands.STATUS");
@@ -60,8 +60,16 @@ public class Battlegrounds extends JavaPlugin {
     {
     	if(sender instanceof Player)
         {
+    		if(args.length==0)
+    		{
+    			sender.sendMessage(ChatColor.RED + "Syntax: " + ChatColor.DARK_GREEN + "/bg [addplayers, status, start, statistics, setspawn[spawnid], assignspawns[Anzahl Spieler]]");
+    			return false;
+    		}
+
                     if (cmd.getName().equalsIgnoreCase("bg"))
                     {
+
+                		
                         if(args != null && args.length==1)
                         {
                             if(args[0].equalsIgnoreCase("status"))
@@ -86,8 +94,10 @@ public class Battlegrounds extends JavaPlugin {
                             		getConfig().set("Battlegrounds.commands.STATUS", true);
                             		saveConfig();
                             		StartGame(30);
+                            		
                             	}
-                            }else if((args[0].equalsIgnoreCase("statistics")))
+                            }
+                            if((args[0].equalsIgnoreCase("statistics")))
                             {
                             	
                             	sender.sendMessage(ChatColor.DARK_AQUA + "~~~~S~~T~~A~~T~~I~~S~~T~~I~~K~~~~\n"
@@ -100,40 +110,62 @@ public class Battlegrounds extends JavaPlugin {
                             		sender.sendMessage(ChatColor.GOLD + p.getName() + ChatColor.DARK_AQUA + " mit " 
                             		+ ChatColor.GOLD + kills + ChatColor.DARK_AQUA +" Kills.");
                             	}
-                            }else if(sender.isOp())
+                            	return true; 
+                            }
+                            if(sender.isOp())
                             {
                                 AddPlayers(sender, args);
                                 ReloadPlugin(sender, args);
+                                return true; 
 
-                            }else if(!sender.isOp())
+                            }
+                            else if(!sender.isOp())
                             {
                             	sender.sendMessage(ChatColor.RED + "Du hast nicht die Berechtigungen dafür!");
+                            	sender.sendMessage(ChatColor.RED + "Syntax: " + ChatColor.DARK_GREEN + "/bg [addplayers, status, start, statistics, setspawn[spawnid], assignspawns[Anzahl Spieler]]");
+                            	return false; 
                             }
-                            else
-                            {
-                            	sender.sendMessage(ChatColor.RED + "Syntax: /bg " + ChatColor.GREEN + "[addplayers, status, start, statistics]");
-                            }
+
                         }
-                        else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("assignspawns"))
+
+                        if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("assignspawns"))
                         {
                         	if(sender.isOp())
                         	{
-                                SetSpawnpoint(sender, args);
-                                AssignPlayersToSpawns(sender, args);
+                        		if(args.length==2)
+                        		{
+                                    SetSpawnpoint(sender, args);
+                                    AssignPlayersToSpawns(sender, args);
+                                    return true;
+                        		}
+                        		else
+                        		{
+                        			sender.sendMessage(ChatColor.RED + "Du bist zwar OP, doch hast nicht genug Parameter angegeben!");
+                        			return false; 
+                        		}
+
                         	}
                         	else
                         	{
-                        		sender.sendMessage(ChatColor.RED + "Du hast nicht die nötigen Rechte!");
+                        		sender.sendMessage(ChatColor.RED + "Du hast nicht die nötigen Rechte! (OP)");
+                        		sender.sendMessage(ChatColor.RED + "Syntax: " + ChatColor.DARK_GREEN + "/bg [addplayers, status, start, statistics, setspawn[spawnid], assignspawns[Anzahl Spieler]]");
+                        		return false; 
                         	}
                         }
                         else
                         {
-                        	sender.sendMessage(ChatColor.RED + "Syntax: /bg [addplayers, status, start, statistics]");
+                        	sender.sendMessage(ChatColor.RED + "Syntax: " + ChatColor.DARK_GREEN + "/bg [addplayers, status, start, statistics, setspawn[spawnid], assignspawns[Anzahl Spieler]]");
+                        	return false; 
                         }
 
-                        return false;  
-                    } 
-                    return false;
+                         
+                    }
+                    else
+                    {
+                    	sender.sendMessage(ChatColor.RED + "Syntax: " + ChatColor.DARK_GREEN + "/bg [addplayers, status, start, statistics, setspawn[spawnid], assignspawns[Anzahl Spieler]]");
+                    	return false;
+                    }
+                    
         }
     	return false;
     }
@@ -294,59 +326,74 @@ public class Battlegrounds extends JavaPlugin {
 
 	private void StartGame(int countdown) 
 	{
-		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
-		{
-			public void run()
-			{
-				if(SecGlob>=5)
-				{
-					for(Player p : srv.getOnlinePlayers())
-					{
-						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
-						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" !");
-						
-					}
-					SecGlob-=5;
-				}
-				else
-				{
-					srv.getScheduler().cancelTask(taskId);
-				}
-				
-    		}
-    	},0, 5*20);
+		SecGlob = countdown;
+		getLogger().info(":Entry::" + SecGlob);
 		
 		taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
 			public void run()
 			{
-				if(SecGlob>=5)
+				getLogger().info(":Pre:Prüfung:" + SecGlob);
+				if(SecGlob>5)
 				{
 					for(Player p : srv.getOnlinePlayers())
 					{
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
-						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" !");
+						p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" Sekunden !");
+						
 					}
-					SecGlob--;
+					getLogger().info(":Abzug:" + SecGlob);
+					SecGlob-=5;
+					
 				}
 				else
-				{					
-					for(Player p : srv.getOnlinePlayers())
+				{
+					getLogger().info(":CANCEL:" + SecGlob + "tid:" + taskId);
+					srv.getScheduler().cancelTask(taskId);
+					getLogger().info(":CANCEL2:" + SecGlob + "tid:" + taskId);
+				}
+				
+    		}
+    	},0, 5*20);
+		
+		getLogger().info(":2ter:Sched:" + SecGlob);
+		
+		if(SecGlob<=10)
+		{
+			getLogger().info(":2ter:Sched:IN:" + SecGlob);
+			taskId = srv.getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
+			{
+				public void run()
+				{
+					getLogger().info(":2ter:Sched:IN2:" + SecGlob);
+					if(SecGlob<=10)
 					{
-						p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
-						p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
-						String playerId = "Players." + p.getPlayer().getUniqueId().toString();
-						getConfig().set(playerId + ".JPCanceled",true);
-						saveConfig();
+						for(Player p : srv.getOnlinePlayers())
+						{
+							p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 5*20,10));
+							p.sendMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet in " + ChatColor.GOLD + SecGlob + ChatColor.RED +" Sekunden!!!");
+						}
+						SecGlob--;
+					}
+					else
+					{					
+						for(Player p : srv.getOnlinePlayers())
+						{
+							p.playSound(p.getLocation(), Sound.ENDERDRAGON_DEATH,10,1);
+							p.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+							String playerId = "Players." + p.getPlayer().getUniqueId().toString();
+							getConfig().set(playerId + ".JPCanceled",true);
+							saveConfig();
+							srv.getScheduler().cancelTask(taskId);
+						}
+						srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
+						srv.broadcastMessage(ChatColor.DARK_AQUA + "Du bist jetzt angreifbar!");
 						srv.getScheduler().cancelTask(taskId);
 					}
-					srv.broadcastMessage(ChatColor.DARK_RED + "BATTLEGROUNDS startet JETZT!");
-					srv.broadcastMessage(ChatColor.DARK_AQUA + "Du bist jetzt angreifbar!");
-					srv.getScheduler().cancelTask(taskId);
-				}
-    		}
-    	},0, 20);
+		    	}
+		    },0, 20);
 	}
+}
 	
 	@Override 
 	public void onDisable(){
