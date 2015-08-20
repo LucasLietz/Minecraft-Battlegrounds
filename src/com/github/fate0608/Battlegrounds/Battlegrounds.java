@@ -62,6 +62,15 @@ public class Battlegrounds extends JavaPlugin {
         {
                     if (cmd.getName().equalsIgnoreCase("bg"))
                     {
+                    	if(args.length == 0)
+                    	{
+                    		sender.sendMessage(ChatColor.DARK_AQUA + "Minecraft Battlegrounds\n" 
+                    											   + ChatColor.RED + "Syntax: /bg [" + ChatColor.GREEN + "addplayers, status, start, "
+                    											   + "statistics, setspawn[ID], assignspawn[Anzahl Spieler" + ChatColor.RED + "]");
+                    		return true;
+                    	}
+                    		
+                    	
                         if(args != null && args.length==1)
                         {
                             if(args[0].equalsIgnoreCase("status"))
@@ -111,7 +120,9 @@ public class Battlegrounds extends JavaPlugin {
                             }
                             else
                             {
-                            	sender.sendMessage(ChatColor.RED + "Syntax: /bg " + ChatColor.GREEN + "[addplayers, status, start, statistics]");
+                            	sender.sendMessage(ChatColor.RED + "Syntax: /bg [" + ChatColor.GREEN + "addplayers, status, start, "
+										   + "statistics, setspawn[ID], assignspawn[Anzahl Spieler" + ChatColor.RED + "]");
+                            	
                             }
                         }
                         else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("assignspawns"))
@@ -120,15 +131,18 @@ public class Battlegrounds extends JavaPlugin {
                         	{
                                 SetSpawnpoint(sender, args);
                                 AssignPlayersToSpawns(sender, args);
+                                return true;  
                         	}
                         	else
                         	{
                         		sender.sendMessage(ChatColor.RED + "Du hast nicht die nötigen Rechte!");
+                        		return false;  
                         	}
                         }
                         else
                         {
-                        	sender.sendMessage(ChatColor.RED + "Syntax: /bg [addplayers, status, start, statistics]");
+                        	sender.sendMessage(ChatColor.RED + "Syntax: /bg " + ChatColor.RED + "Syntax: /bg [" + ChatColor.GREEN + "addplayers, status, start, "
+                    											   + "statistics, setspawn[ID], assignspawn[Anzahl Spieler" + ChatColor.RED + "]");
                         }
 
                         return false;  
